@@ -1,3 +1,3 @@
-import os
+import shutil
 
-os.remove('bla\deneme.zip')
+shutil.rmtree("sends")

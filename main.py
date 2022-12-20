@@ -1,6 +1,7 @@
 import datetime
 import glob
 import os
+import shutil
 import smtplib
 import threading
 import time
@@ -40,8 +41,11 @@ if connect():
     # ----------------------------
     i = 0
     if os.path.exists("sends"):
-        os.remove("sends")
+        shutil.rmtree("bla")
         print("silindi")
+    if os.path.exists("sends.zip"):
+        os.remove("sends.zip")
+        print("zip silindi")
     os.mkdir("sends")
     names = "sends/host"
     ncam = names + ".jpg"
