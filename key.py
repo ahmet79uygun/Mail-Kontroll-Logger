@@ -33,5 +33,3 @@ def onEachKeyRelease(the_key):
     if a >= c:
         print("keybitti")
         return False
-
-
